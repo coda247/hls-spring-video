@@ -5,7 +5,7 @@ services:
     container_name: video-db
     hostname: video-db
     environment:
-      POSTGRES_PASSWORD: root_password  # please change it
+      POSTGRES_PASSWORD: "&root888&&**_password"
       POSTGRES_DB: spring-video
     volumes:
       - ./postgresql/video-db:/var/lib/postgresql/data
@@ -13,13 +13,18 @@ services:
       - 5433:5432
     networks:
       - local
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   worker-db:
     image: debezium/postgres:15
     container_name: worker-db
     hostname: worker-db
     environment:
-      POSTGRES_PASSWORD: root_password  # please change it
+      POSTGRES_PASSWORD: "&root888&&**_password"
       POSTGRES_DB: spring-worker
     volumes:
       - ./postgresql/worker-db:/var/lib/postgresql/data
@@ -27,6 +32,11 @@ services:
       - 5434:5432
     networks:
       - local
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   minio:
     image: minio/minio
@@ -38,12 +48,17 @@ services:
       - 9001:9001 # ui
     environment:
       MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: root_password  # please change it
+      MINIO_ROOT_PASSWORD: "&root888&&**_password"
     volumes:
       - ./minio/data:/data
     command: server --console-address ':9001' /data
     networks:
       - local
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   zookeeper:
     image: debezium/zookeeper:2.2
@@ -63,6 +78,11 @@ services:
       - ./zookeeper/conf:/zookeeper/conf
     networks:
       - local
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   kafka1:
     image: debezium/kafka:2.2
@@ -91,6 +111,11 @@ services:
       - ./kafka/kafka-1/config:/kafka/config
     networks:
       - local
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   kafka2:
     image: debezium/kafka:2.2
@@ -119,6 +144,11 @@ services:
       - ./kafka/kafka-2/config:/kafka/config
     networks:
       - local
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -135,6 +165,11 @@ services:
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://connect:8083
     networks:
       - local
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   connect:
     image: debezium/connect:2.2
@@ -155,6 +190,14 @@ services:
       - kafka2
     networks:
       - local
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   local:
+
+
+  

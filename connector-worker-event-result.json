@@ -10,7 +10,7 @@
     "database.hostname": "worker-db",
     "database.port": "5432", 
     "database.user": "postgres", 
-    "database.password": "root_password", 
+    "database.password": "&root888&&**_password", 
     "database.dbname" : "spring-worker", 
     "database.server.name": "worker-db", 
     "table.include.list": "public.video_event_result",
