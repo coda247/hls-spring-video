@@ -1,7 +1,10 @@
 package com.joejoe2.video.config;
 
+import java.util.List;
+
 import com.joejoe2.video.filter.JwtAuthenticationFilter;
 import com.joejoe2.video.service.user.auth.UserDetailService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -55,12 +58,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration apiConfiguration = new CorsConfiguration();
-    apiConfiguration.addAllowedOrigin("*");
-    apiConfiguration.addAllowedHeader("*");
-    apiConfiguration.addAllowedMethod("*");
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/api/**", apiConfiguration);
-    return source;
-  }
+  CorsConfiguration apiConfiguration = new CorsConfiguration();
+  apiConfiguration.setAllowedOrigins(List.of("*")); // allow all origins (use specific origins in prod)
+  apiConfiguration.setAllowedHeaders(List.of("*"));
+  apiConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+  apiConfiguration.setAllowCredentials(false); // must be false if using "*"
+
+  UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+  source.registerCorsConfiguration("/**", apiConfiguration); // allow on all paths
+  return source;
+}
 }
