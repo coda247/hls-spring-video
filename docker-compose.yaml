@@ -1,11 +1,11 @@
-version: "3"
 services:
   video-db:
     image: debezium/postgres:15
     container_name: video-db
     hostname: video-db
     environment:
-      POSTGRES_PASSWORD: "&root888&&**_password"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: whynorweuse234iKQwdhGwjhs
       POSTGRES_DB: spring-video
     volumes:
       - ./postgresql/video-db:/var/lib/postgresql/data
@@ -24,12 +24,13 @@ services:
     container_name: worker-db
     hostname: worker-db
     environment:
-      POSTGRES_PASSWORD: "&root888&&**_password"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: whynorweuse234iKQwdhGwjhs
       POSTGRES_DB: spring-worker
     volumes:
       - ./postgresql/worker-db:/var/lib/postgresql/data
     ports:
-      - 5434:5432
+      - 5435:5432
     networks:
       - local
     logging:
@@ -48,7 +49,7 @@ services:
       - 9001:9001 # ui
     environment:
       MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: "&root888&&**_password"
+      MINIO_ROOT_PASSWORD: whynorweuse234iKQwdhGwjhs
     volumes:
       - ./minio/data:/data
     command: server --console-address ':9001' /data

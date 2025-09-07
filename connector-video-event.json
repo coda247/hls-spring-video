@@ -10,7 +10,7 @@
     "database.hostname": "video-db",
     "database.port": "5432", 
     "database.user": "postgres", 
-    "database.password": "&root888&&**_password", 
+    "database.password": "whynorweuse234iKQwdhGwjhs", 
     "database.dbname" : "spring-video", 
     "database.server.name": "video-db", 
     "table.include.list": "public.video_event",

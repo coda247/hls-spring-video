@@ -22,8 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class StorageController {
   @Autowired ObjectStorageService objectStorageService;
 
-  @AuthenticatedApi
-  @SecurityRequirement(name = "jwt")
+  //@AuthenticatedApi
+//   @SecurityRequirement(name = "jwt")
   @Operation(description = "upload video file")
   @ApiResponses
   @RequestMapping(
@@ -31,13 +31,15 @@ public class StorageController {
       method = RequestMethod.POST,
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity upload(@Valid UploadRequest request) {
-    UserDetail user = AuthUtil.currentUserDetail();
+    //UserDetail user = AuthUtil.currentUserDetail();
     MultipartFile file = request.getFile();
-    String objectName = "user/" + user.getId() + "/" + request.getFileName();
+    String userId = "1b659551-ee80-4acc-8ea4-ade098fea4a5";
+    String objectName = "user/" + userId + "/" + request.getFileName();
     try {
       // upload
       objectStorageService.upload(file, objectName);
     } catch (Exception e) {
+        
       throw new RuntimeException(e);
     }
     return ResponseEntity.ok().build();
