@@ -10,7 +10,7 @@ services:
     volumes:
       - ./postgresql/video-db:/var/lib/postgresql/data
     ports:
-      - 1433:5432
+      - 5433:5432
     networks:
       - local
     logging:
@@ -30,7 +30,7 @@ services:
     volumes:
       - ./postgresql/worker-db:/var/lib/postgresql/data
     ports:
-      - 1435:5432
+      - 5435:5432
     networks:
       - local
     logging:
@@ -45,8 +45,8 @@ services:
     hostname: minio
     restart: always
     ports:
-      - 1000:9000 # API
-      - 1001:9001 # Console
+      - 9000:9000 # api
+      - 9001:9001 # ui
     environment:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: whynorweuse234iKQwdhGwjhs
@@ -72,7 +72,7 @@ services:
     environment:
       JMXPORT: 9010
       JMXHOST: zookeeper
-    volumes:
+    volumes: 
       - ./zookeeper/data:/zookeeper/data
       - ./zookeeper/txns:/zookeeper/txns
       - ./zookeeper/log:/zookeeper/logs
@@ -90,8 +90,8 @@ services:
     container_name: kafka1
     restart: always
     ports:
-      - 1092:9092
-      - 19092:29092
+      - 9092:9092
+      - 29092:29092
     environment:
       ZOOKEEPER_CONNECT: "zookeeper:2181"
       BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29093"
@@ -106,7 +106,7 @@ services:
       JMXHOST: kafka1
     depends_on:
       - zookeeper
-    volumes:
+    volumes: 
       - ./kafka/kafka-1/data:/kafka/data
       - ./kafka/kafka-1/log:/kafka/log
       - ./kafka/kafka-1/config:/kafka/config
@@ -123,8 +123,8 @@ services:
     container_name: kafka2
     restart: always
     ports:
-      - 1093:9093
-      - 19093:29093
+      - 9093:9093
+      - 29093:29093
     environment:
       ZOOKEEPER_CONNECT: "zookeeper:2181"
       BOOTSTRAP_SERVERS: "kafka1:29092,kafka2:29093"
@@ -139,7 +139,7 @@ services:
       JMXHOST: kafka2
     depends_on:
       - zookeeper
-    volumes:
+    volumes: 
       - ./kafka/kafka-2/data:/kafka/data
       - ./kafka/kafka-2/log:/kafka/log
       - ./kafka/kafka-2/config:/kafka/config
@@ -155,7 +155,7 @@ services:
     image: provectuslabs/kafka-ui
     container_name: kafka-ui
     ports:
-      - "1070:8080"
+      - "8070:8080"
     restart: always
     environment:
       KAFKA_CLUSTERS_0_NAME: "local"
@@ -164,9 +164,6 @@ services:
       KAFKA_CLUSTERS_0_METRICS_PORT: 9011
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: connect
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://connect:8083
-    depends_on:
-      - kafka1
-      - connect
     networks:
       - local
     logging:
@@ -180,7 +177,7 @@ services:
     container_name: connect
     restart: always
     ports:
-      - 1071:8083
+      - 8071:8083
     environment:
       GROUP_ID: 1
       CONFIG_STORAGE_TOPIC: connect_configs
@@ -202,4 +199,4 @@ services:
 
 networks:
   local:
-    driver: bridge
+
