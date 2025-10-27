@@ -8,6 +8,10 @@ import com.joejoe2.video.utils.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -45,6 +49,39 @@ public class StorageController {
     return ResponseEntity.ok().build();
   }
 
+    //@AuthenticatedApi
+//   @SecurityRequirement(name = "jwt")
+  @Operation(description = "upload video file")
+  @ApiResponses
+  @RequestMapping(
+      path = "/image/upload",
+      method = RequestMethod.POST,
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<Map<String, Object>>  image(@Valid UploadRequest request) {
+    //UserDetail user = AuthUtil.currentUserDetail();
+    MultipartFile file = request.getFile();
+    String userId = "1b659551-ee80-4acc-8ea4-ade098fea4a5";
+    String objectName = "user/" + userId + "/" + request.getFileName();
+    try {
+      // upload
+       String fileUrl = objectStorageService.image(file, objectName);
+        Map<String, Object> response = new HashMap<>();
+         response.put("url", fileUrl);
+     return ResponseEntity.ok(response);
+    } catch (Exception e) {
+         e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Failed to upload file: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
+            
+
+    }
+
+  }
+
+
+  
+  
   /*@AuthenticatedApi
   @RequestMapping(path = "/download", method = RequestMethod.GET)
   public void download(@ParameterObject @Valid DownloadRequest request,

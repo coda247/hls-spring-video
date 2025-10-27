@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface MinioService {
   public void putObject(MultipartFile in, String objectName) throws Exception;
-
+  public String putImage(MultipartFile in, String objectName) throws Exception;
   void putFolder(String folderName) throws Exception;
 
   List<Item> listFiles(String bucket, String prefix) throws Exception;

@@ -25,6 +25,9 @@ public class ObjectStorageConfiguration {
   @Value("${minio.bucket.store}")
   private String storeBucket;
 
+  @Value("${minio.bucket.image}")
+  private String imageBucket;
+  
   @Value("${minio.bucket.stream}")
   private String streamBucket;
 

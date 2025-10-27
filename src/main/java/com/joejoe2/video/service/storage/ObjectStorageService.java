@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ObjectStorageService {
   void upload(MultipartFile file, String objectName) throws Exception;
-
+   String image(MultipartFile file, String objectName) throws Exception;
   void createFolder(String folderName) throws Exception;
 
   List<String> listFiles(String bucket, String folderName) throws Exception;

@@ -20,6 +20,11 @@ public class MinioObjectStorageServiceImpl implements ObjectStorageService {
   }
 
   @Override
+  public String image(MultipartFile file, String objectName) throws Exception {
+   return minioService.putImage(file, objectName);
+  }
+
+  @Override
   public void createFolder(String folderName) throws Exception {
     minioService.putFolder(folderName);
   }

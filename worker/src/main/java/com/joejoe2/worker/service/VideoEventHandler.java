@@ -97,8 +97,9 @@ public class VideoEventHandler {
     // process
     File tempDir;
     try {
-      tempDir = Files.createTempDirectory(Path.of("tmp"), "tmp-" + file.getName()).toFile();
+      tempDir = Files.createTempDirectory(Path.of("/tmp"), "tmp-" + file.getName()).toFile();
       FileUtil.deleteDirOnExit(tempDir);
+      
       videoService.convert(file, tempDir);
     } catch (Exception e) {
       e.printStackTrace();

@@ -1,15 +1,20 @@
 package com.joejoe2.video.service.storage;
 
 import com.joejoe2.video.config.ObjectStorageConfiguration;
+
 import io.minio.*;
 import io.minio.messages.Item;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.joejoe2.video.config.ImageConfig;
 
 @Service
 public class MinioServiceImpl implements MinioService {
@@ -28,6 +33,24 @@ public class MinioServiceImpl implements MinioService {
             .build());
     inputStream.close();
   }
+
+  @Override
+  public String putImage(MultipartFile file, String objectName) throws Exception {
+    InputStream inputStream = file.getInputStream();
+    minioClient.putObject(
+        PutObjectArgs.builder()
+            .bucket(objectStorageConfiguration.getImageBucket())
+            .object(objectName)
+            .stream(inputStream, file.getSize(), -1)
+            .contentType(file.getContentType())
+            .build());
+    inputStream.close();
+
+// String tsPrefix = ImageConfig.getPrefix()
+
+    return String.format("%s/%s", objectStorageConfiguration.getImageBucket(), objectName);
+  }
+
 
   @Override
   public void putFolder(String folderName) throws Exception {
