@@ -10,6 +10,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,16 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 
-
-@RestController
-@RequestMapping("/images")
+@Controller
+@RequestMapping(path = "/images")
 public class ImageController {
   @Autowired ObjectStorageConfiguration objectStorageConfiguration;
 
     @Autowired
     private MinioClient minioClient;
 
-    private final String BUCKET = objectStorageConfiguration.getImageBucket();
+
 
     @GetMapping("/{filename:.+}") // allow dots in filename
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
@@ -37,7 +37,7 @@ public class ImageController {
             if (filename.contains("..") || filename.contains("/")) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid filename");
             }
-
+   String BUCKET = objectStorageConfiguration.getImageBucket();
             // Fetch the file from MinIO
             InputStream stream = minioClient.getObject(
                 GetObjectArgs.builder()
