@@ -59,60 +59,72 @@ public class VideoController {
 }
 
 
-  @Operation(description = "upload video file")
-  @ApiResponses
-  @RequestMapping(
-      path = "/upload",
-      method = RequestMethod.POST,
-      consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity upload(@Valid UploadRequest request) {
-    //UserDetail user = AuthUtil.currentUserDetail();
+@Operation(description = "Upload video file")
+@ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Upload and processing complete"),
+    @ApiResponse(responseCode = "202", description = "Video is still processing"),
+    @ApiResponse(responseCode = "500", description = "Error during upload or processing")
+})
+@RequestMapping(
+    path = "/upload",
+    method = RequestMethod.POST,
+    consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+)
+public ResponseEntity<?> upload(@Valid UploadRequest request) {
+
     MultipartFile file = request.getFile();
     String userId = "1b659551-ee80-4acc-8ea4-ade098fea4a5";
     String objectName = "user/" + userId + "/" + request.getFileName();
+
     try {
-      // upload
-      objectStorageService.upload(file, objectName);
-       VideoProfile profile = videoService.createFromObjectStorage(
-                UUID.fromString(userId), userId, objectName);
+        // 1️⃣ Upload file to storage
+        objectStorageService.upload(file, objectName);
 
-        String videoId = profile.getId();
+        // 2️⃣ Trigger HLS creation
+        VideoProfile profile = videoService.createFromObjectStorage(
+                UUID.fromString(userId), request.getFileName(), objectName);
 
-     VideoStatus status = waitUntilReady(videoId, 180_000);
-System.out.println("FIGO " + status);
+    
 
-switch (status) {
-    case READY -> {
-        String hlsUrl = "/video/" + videoId + "/index.m3u8";
-        return ResponseEntity.ok(Map.of(
-                "status", status.toString(),
-                "videoId", videoId,
-                "hlsUrl", hlsUrl
-        ));
-    }
+        // 3️⃣ Wait until ready, error, or timeout
+        VideoStatus status = waitUntilReady(profile.getId(), 180_000);
+        System.out.println("FIGO " + status);
 
-    case ERROR -> {
+        // 4️⃣ Handle final state
+        switch (status) {
+            case READY -> {
+                String hlsUrl = "/video/" + videoId + "/index.m3u8";
+                return ResponseEntity.ok(Map.of(
+                        "status", status.toString(),
+                        "videoId", videoId.toString(),
+                        "hlsUrl", hlsUrl
+                ));
+            }
+            case ERROR -> {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of(
+                                "status", status.toString(),
+                                "videoId", videoId.toString()
+                        ));
+            }
+            default -> {
+                return ResponseEntity.status(HttpStatus.ACCEPTED)
+                        .body(Map.of(
+                                "status", status.toString(),
+                                "videoId", videoId.toString()
+                        ));
+            }
+        }
+
+    } catch (Exception e) {
+        System.out.println("------------ Error During Upload ------------------------");
+        e.printStackTrace();
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of(
-                        "status", status.toString(),
-                        "videoId", videoId.toString()
-                ));
-    }
-
-    default -> {
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(Map.of(
-                        "status", status.toString(),
-                        "videoId", videoId.toString()
-                ));
+                .body(Map.of("status", "ERROR", "error", e.getMessage()));
     }
 }
 
-    } catch (Exception e) {
-        
-      throw new RuntimeException(e);
-    }
-  }
 
   //@AuthenticatedApi
   // @SecurityRequirement(name = "jwt")
