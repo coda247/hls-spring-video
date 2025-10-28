@@ -78,8 +78,7 @@ public class StorageController {
   public ResponseEntity<Map<String, Object>>  image(@Valid UploadRequest request) {
     //UserDetail user = AuthUtil.currentUserDetail();
     MultipartFile file = request.getFile();
-    String userId = "1b659551-ee80-4acc-8ea4-ade098fea4a5";
-    String objectName = "user/" + userId + "/" + request.getFileName();
+    String objectName = request.getFileName();
     try {
       // upload
        String fileUrl = objectStorageService.image(file, objectName);
