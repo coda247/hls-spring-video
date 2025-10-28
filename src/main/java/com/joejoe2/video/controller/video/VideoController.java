@@ -42,11 +42,11 @@ public class VideoController {
   @Autowired VideoService videoService;
   @Autowired ObjectStorageService objectStorageService;
 
-  private VideoStatus waitUntilReady(UUID videoId, long timeoutMs) throws InterruptedException {
+  private VideoStatus waitUntilReady(String videoId, long timeoutMs) throws InterruptedException {
     long start = System.currentTimeMillis();
     while (System.currentTimeMillis() - start < timeoutMs) {
         try {
-            VideoProfile profile = videoService.profile(videoId);
+            VideoProfile profile = videoService.profile(UUID.fromString(videoId));
             VideoStatus status = profile.getStatus();
 
             if (status == VideoStatus.READY) return VideoStatus.READY;
@@ -76,7 +76,7 @@ public class VideoController {
        VideoProfile profile = videoService.createFromObjectStorage(
                 UUID.fromString(userId), userId, objectName);
 
-        UUID videoId = profile.getId();
+        String videoId = profile.getId();
 
      VideoStatus status = waitUntilReady(videoId, 180_000);
 System.out.println("FIGO " + status);
@@ -86,7 +86,7 @@ switch (status) {
         String hlsUrl = "/video/" + videoId + "/index.m3u8";
         return ResponseEntity.ok(Map.of(
                 "status", status.toString(),
-                "videoId", videoId.toString(),
+                "videoId", videoId,
                 "hlsUrl", hlsUrl
         ));
     }
