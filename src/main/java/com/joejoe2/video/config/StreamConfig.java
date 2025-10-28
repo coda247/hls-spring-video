@@ -7,6 +7,6 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 public class StreamConfig {
-  @Value("${server.stream.prefix:https://snailnode.dhive.org/api/video/}")
+  @Value("${server.stream.prefix:https://cdns.cubeapp.org/api/storage/}")
   private String prefix;
 }

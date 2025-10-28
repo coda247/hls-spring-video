@@ -1,6 +1,7 @@
 package com.joejoe2.video.service.storage;
 
 import com.joejoe2.video.config.ObjectStorageConfiguration;
+import com.joejoe2.video.config.StreamConfig;
 
 import io.minio.*;
 import io.minio.messages.Item;
@@ -20,6 +21,7 @@ import com.joejoe2.video.config.ImageConfig;
 public class MinioServiceImpl implements MinioService {
   @Autowired MinioClient minioClient;
   @Autowired ObjectStorageConfiguration objectStorageConfiguration;
+  @Autowired ImageConfig imageConfig;
 
   @Override
   public void putObject(MultipartFile file, String objectName) throws Exception {
@@ -46,9 +48,9 @@ public class MinioServiceImpl implements MinioService {
             .build());
     inputStream.close();
 
-// String tsPrefix = ImageConfig.getPrefix()
+ String tsPrefix = imageConfig.getPrefix() ;
 
-    return String.format("%s/%s", objectStorageConfiguration.getImageBucket(), objectName);
+    return String.format("%s/%s", tsPrefix, objectName);
   }
 
 
