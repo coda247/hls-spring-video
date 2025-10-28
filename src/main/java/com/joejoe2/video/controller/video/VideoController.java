@@ -77,9 +77,10 @@ public ResponseEntity<?> upload(@Valid UploadRequest request) {
     String objectName = "user/" + userId + "/" + request.getFileName();
 
     try {
-        // 1️⃣ Upload file to storage
+      
+        System.out.println("FIGO " + request.getFileName());
         objectStorageService.upload(file, objectName);
-
+Thread.sleep(3000);
         // 2️⃣ Trigger HLS creation
         VideoProfile profile = videoService.createFromObjectStorage(
                 UUID.fromString(userId), request.getFileName(), objectName);
