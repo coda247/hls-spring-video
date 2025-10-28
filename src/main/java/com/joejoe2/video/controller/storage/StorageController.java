@@ -137,6 +137,18 @@ public class StorageController {
         }
     }
   
+
+     public boolean waitUntilReady(String videoId, long timeoutMs) throws InterruptedException {
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < timeoutMs) {
+            // String status = getStatus(videoId);
+            // if ("COMPLETED".equalsIgnoreCase(status)) return true;
+            Thread.sleep(3000);
+        }
+        return false;
+    }
+
+    
   /*@AuthenticatedApi
   @RequestMapping(path = "/download", method = RequestMethod.GET)
   public void download(@ParameterObject @Valid DownloadRequest request,
