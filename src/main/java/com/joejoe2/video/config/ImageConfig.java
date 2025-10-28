@@ -7,6 +7,6 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 public class ImageConfig {
-  @Value("${server.stream.prefix:https://cdns.cubeapp.org/api/storage/}")
+  @Value("${server.stream.prefix:https://cdns.cubeapp.org/api/storage}")
   private String prefix;
 }
