@@ -84,7 +84,8 @@ public ResponseEntity<?> upload(@Valid UploadRequest request) {
         VideoProfile profile = videoService.createFromObjectStorage(
                 UUID.fromString(userId), request.getFileName(), objectName);
 
-    
+            String videoId = profile.getId();
+
 
         // 3️⃣ Wait until ready, error, or timeout
         VideoStatus status = waitUntilReady(profile.getId(), 180_000);
