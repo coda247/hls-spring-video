@@ -4,7 +4,10 @@ import com.joejoe2.video.config.ObjectStorageConfiguration;
 import com.joejoe2.video.controller.constraint.auth.AuthenticatedApi;
 import com.joejoe2.video.data.UserDetail;
 import com.joejoe2.video.data.storage.UploadRequest;
+import com.joejoe2.video.data.video.TsRequest;
+import com.joejoe2.video.exception.DoesNotExist;
 import com.joejoe2.video.service.storage.ObjectStorageService;
+import com.joejoe2.video.service.video.VideoService;
 import com.joejoe2.video.utils.AuthUtil;
 
 import io.minio.GetObjectArgs;
@@ -18,13 +21,17 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.validation.Valid;
+
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,13 +42,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @Controller
 @RequestMapping(path = "/api/storage") // path prefix
 public class StorageController {
   @Autowired ObjectStorageService objectStorageService;
   @Autowired ObjectStorageConfiguration objectStorageConfiguration;
-
+  @Autowired VideoService videoService;
   @Autowired
   private MinioClient minioClient;
   //@AuthenticatedApi
@@ -65,6 +73,24 @@ public class StorageController {
       throw new RuntimeException(e);
     }
     return ResponseEntity.ok().build();
+  }
+
+  @Operation(description = "get hls index file of the video")
+  @RequestMapping(
+      path = "/{id}/{ts:.+}.ts",
+      method = RequestMethod.GET,
+      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+  public ResponseEntity<StreamingResponseBody> ts(@Valid @ParameterObject TsRequest request) {
+    try {
+      HttpHeaders headers = new HttpHeaders();
+      headers.set("Content-Type", "application/vnd.apple.mpegurl");
+      headers.set("Content-Disposition", "attachment;filename=" + request.getTs() + ".ts");
+      StreamingResponseBody body =
+          videoService.ts(UUID.fromString(request.getId()), request.getTs() + ".ts");
+      return new ResponseEntity<>(body, headers, HttpStatus.OK);
+    } catch (DoesNotExist e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 
     //@AuthenticatedApi
