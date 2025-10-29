@@ -95,7 +95,7 @@ Thread.sleep(3000);
         // 4️⃣ Handle final state
         switch (status) {
             case READY -> {
-                String hlsUrl = "/video/" + videoId + "/index.m3u8";
+                String hlsUrl = "https://cdns.cubeapp.org/api/video/" + videoId + "/index.m3u8";
                 return ResponseEntity.ok(Map.of(
                         "status", status.toString(),
                         "videoId", videoId.toString(),
