@@ -65,7 +65,7 @@ public class VideoServiceImpl implements VideoService {
     if (video.getStatus().equals(VideoStatus.PROCESSING))
       throw new DoesNotExist("target video is still under processing !");
 
-    String tsPrefix = "https://cdns.cubeapp.org/api/video" + videoId + "/";
+    String tsPrefix = "https://cdns.cubeapp.org/api/video/" + videoId + "/";
     try {
       List<String> files =
           objectStorageService.listFiles(
