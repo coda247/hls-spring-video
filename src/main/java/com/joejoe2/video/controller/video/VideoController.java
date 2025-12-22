@@ -96,10 +96,12 @@ Thread.sleep(3000);
         switch (status) {
             case READY -> {
                 String hlsUrl = "https://cdns.cubeapp.org/api/video/" + videoId + "/index.m3u8";
+                String mainUrl = "https://cdns.cubeapp.org/api/storage/video/"+request.getFileName();
                 return ResponseEntity.ok(Map.of(
                         "status", status.toString(),
                         "videoId", videoId.toString(),
-                        "hlsUrl", hlsUrl
+                        "hlsUrl", hlsUrl,
+                        "videoUrl", mainUrl
                 ));
             }
             case ERROR -> {
