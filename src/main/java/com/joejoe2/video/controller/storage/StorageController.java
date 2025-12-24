@@ -165,6 +165,47 @@ public class StorageController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error reading file", e);
         }
     }
+
+    @RequestMapping(
+    path ="thumbnail/{filename:.+}",
+    method = RequestMethod.GET
+   )
+    public ResponseEntity<Resource> getThumbnail(@PathVariable String filename) {
+        try {
+            
+            
+            if (filename.contains("..") || filename.contains("/")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid filename");
+            }
+     String userId = "1b659551-ee80-4acc-8ea4-ade098fea4a5";
+    String objectName = "user/" + userId + "/thumbnails/" + filename;
+   String BUCKET = objectStorageConfiguration.getStoreBucket();
+            // Fetch the file from MinIO
+            InputStream stream = minioClient.getObject(
+                GetObjectArgs.builder()
+                    .bucket(BUCKET)
+                    .object(objectName)
+                    .build()
+            );
+
+            // Guess MIME type from filename
+            String mimeType = URLConnection.guessContentTypeFromName(filename);
+            if (mimeType == null) {
+                mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+            }
+
+           return ResponseEntity.ok()
+    .contentType(MediaType.parseMediaType(mimeType))
+    .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS))
+    .body(new InputStreamResource(stream));
+
+        } catch (MinioException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found: " + filename, e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error reading file", e);
+        }
+    }
+
     
    @RequestMapping(
     path ="/{filename:.+}",

@@ -65,8 +65,6 @@ public class VideoEventHandler {
   }
 
   private void process(String message, Acknowledgment acknowledgment) {
-    System.out.println("-----------------message----------------");
-    System.out.println(message);
     // read event
     EventDto eventDto;
     try {

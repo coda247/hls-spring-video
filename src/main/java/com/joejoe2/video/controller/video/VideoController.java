@@ -22,6 +22,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 import javax.validation.Valid;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +43,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class VideoController {
   @Autowired VideoService videoService;
   @Autowired ObjectStorageService objectStorageService;
-
+  @Autowired ThumbnailService thumbnailService;
   private VideoStatus waitUntilReady(String videoId, long timeoutMs) throws InterruptedException {
     long start = System.currentTimeMillis();
     while (System.currentTimeMillis() - start < timeoutMs) {
@@ -56,6 +58,54 @@ public class VideoController {
         Thread.sleep(3000);
     }
     return VideoStatus.PROCESSING;
+}
+
+
+
+@Operation(description = "Upload video file")
+@ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Upload and processing complete"),
+    @ApiResponse(responseCode = "202", description = "Video is still processing"),
+    @ApiResponse(responseCode = "500", description = "Error during upload or processing")
+})
+@RequestMapping(
+    path = "/no/hls/upload",
+    method = RequestMethod.POST,
+    consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+)
+public ResponseEntity<?> noneHlsupload(@Valid UploadRequest request) {
+
+    MultipartFile file = request.getFile();
+    String userId = "1b659551-ee80-4acc-8ea4-ade098fea4a5";
+    String objectName = "user/" + userId + "/" + request.getFileName();
+
+    try {
+      
+        System.out.println("FIGO " + request.getFileName());
+        CompletableFuture.runAsync(() ->
+    thumbnailService.extractAndUpload(
+        file,
+        userId,
+        request.getFileName()
+    )
+);
+        objectStorageService.upload(file, objectName);
+
+        String mainUrl = "https://cdns.cubeapp.org/api/storage/video/"+request.getFileName();
+        String thumbnailUrl = "https://cdns.cubeapp.org/api/storage/thumbnail/"+request.getFileName()+".jpg";
+            return ResponseEntity.ok(Map.of(
+                        "status", "READY",
+                        "videoUrl", mainUrl,
+                        "thumbnailUrl", thumbnailUrl
+                ));
+
+    } catch (Exception e) {
+        System.out.println("------------ Error During Upload ------------------------");
+        e.printStackTrace();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("status", "ERROR", "error", e.getMessage()));
+    }
 }
 
 
@@ -79,6 +129,13 @@ public ResponseEntity<?> upload(@Valid UploadRequest request) {
     try {
       
         System.out.println("FIGO " + request.getFileName());
+        CompletableFuture.runAsync(() ->
+    thumbnailService.extractAndUpload(
+        file,
+        userId,
+        request.getFileName()
+    )
+);
         objectStorageService.upload(file, objectName);
 Thread.sleep(3000);
         // 2️⃣ Trigger HLS creation
@@ -97,11 +154,13 @@ Thread.sleep(3000);
             case READY -> {
                 String hlsUrl = "https://cdns.cubeapp.org/api/video/" + videoId + "/index.m3u8";
                 String mainUrl = "https://cdns.cubeapp.org/api/storage/video/"+request.getFileName();
+                String thumbnailUrl = "https://cdns.cubeapp.org/api/storage/thumbnail/"+request.getFileName()+".jpg";
                 return ResponseEntity.ok(Map.of(
                         "status", status.toString(),
                         "videoId", videoId.toString(),
                         "hlsUrl", hlsUrl,
-                        "videoUrl", mainUrl
+                        "videoUrl", mainUrl,
+                        "thumbnailUrl", thumbnailUrl
                 ));
             }
             case ERROR -> {
