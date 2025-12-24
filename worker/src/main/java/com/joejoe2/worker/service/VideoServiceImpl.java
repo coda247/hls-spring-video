@@ -37,6 +37,11 @@ public class VideoServiceImpl implements VideoService {
 
   @Override
   public void convert(File source, File workDir) throws Exception {
+    System.out.println("----------source-----------");
+    System.out.println(source);
+    System.out.println("----------workDir-----------");
+    System.out.println(workDir);
+    
     VideoUtil.transcodeToM3u8(source, workDir);
   }
 
